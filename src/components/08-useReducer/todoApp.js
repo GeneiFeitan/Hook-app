@@ -1,16 +1,57 @@
-import React, {useReducer} from 'react'
+import React, {useReducer,useEffect} from 'react'
+
+import {useForm} from "../hooks/useForm";
 
 import './styles.css'
 import {todoReducer} from "./todoReducer";
 
-const initialState = [{
-    id: new Date().getTime(),
-    desc: 'Aprender React',
-    donde: false
-}]
+const initialState = []
+
+const init=()=>{
+    return JSON.parse(localStorage.getItem('todos')||[]);
+}
 
 export const TodoApp = () => {
-    const [todos, dispatch] = useReducer(todoReducer, initialState);
+    const [todos, dispatch] = useReducer(todoReducer, [],init);
+    const [{description},handleInputChange,reset]=useForm({
+        description:''
+    })
+
+    useEffect(() => {
+
+        localStorage.setItem('todos',JSON.stringify(todos))
+    }, [todos]);
+    
+    const handleDelete=(todoId)=>{
+        const action={
+            type:'delete',
+            payload: todoId
+        }
+        dispatch(action)
+    }
+
+    const handleSubmit=(e)=>{
+        e.preventDefault()
+
+        if(description.trim().length<=1){
+            return;
+        }
+        console.log('nueva tarea')
+        const newTodo={
+            id: new Date().getTime(),
+            desc: description,
+            donde: false
+        }
+
+        const action={
+            type:'add',
+            payload:newTodo
+        }
+
+        dispatch(action);
+        reset();
+    }
+
 
     console.log(todos);
     return (
@@ -30,7 +71,8 @@ export const TodoApp = () => {
                                     <p className='text-center'>{i + 1}.{todo.desc}
                                     </p>
 
-                                    <button className='btn btn-danger'>
+                                    <button className='btn btn-danger'
+                                    onClick={e=>handleDelete(todo.id)}>
                                         borrar
                                     </button>
                                 </li>
@@ -46,8 +88,10 @@ export const TodoApp = () => {
                     <hr/>
 
 
-                    <form>
+                    <form onSubmit={handleSubmit}>
                         <input
+                            onChange={handleInputChange}
+                            value={description}
                             type='text'
                             name='description'
                             className='form-control'
@@ -56,6 +100,7 @@ export const TodoApp = () => {
                         />
 
                         <button
+                            type='submit'
                             className='btn btn-outline-primary mt-1 btn-block'>
                             Agregar
                         </button>

@@ -1,9 +1,14 @@
 import  {useState} from 'react';
 
+//Es para modificar los campos del formulario
 
 export const useForm = (initialState={}) => {
 
     const [state, setState] = useState(initialState);
+
+    const reset=()=>{
+        setState(initialState)
+    }
 
     const handleInputchange=({target})=>{
         setState({
@@ -12,5 +17,5 @@ export const useForm = (initialState={}) => {
         })
     }
 
-    return [state,handleInputchange]
+    return [state,handleInputchange,reset]
 }
